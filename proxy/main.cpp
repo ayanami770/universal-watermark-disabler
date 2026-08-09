@@ -122,26 +122,29 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 		if (g_hShell32 != NULL)
 		{
-			BOOL bImportChanged;
+			BOOL bImportChanged = FALSE;
 			FARPROC pLoadString;
 
 			pLoadString = GetProcAddress(GetModuleHandle(_T("api-ms-win-core-libraryloader-l1-2-0.dll")), "LoadStringW");
 			if (pLoadString != NULL)
 			{
-				bImportChanged = ImportPatch::ChangeImportedAddress(g_hShell32, "api-ms-win-core-libraryloader-l1-2-0.dll", pLoadString, (FARPROC)Proxy_LoadString);
+				if (ImportPatch::ChangeImportedAddress(g_hShell32, "api-ms-win-core-libraryloader-l1-2-0.dll", pLoadString, (FARPROC)Proxy_LoadString))
+					bImportChanged = TRUE;
 			}
-			else 
+			else
 			{
 				pLoadString = GetProcAddress(GetModuleHandle(_T("api-ms-win-core-libraryloader-l1-1-1.dll")), "LoadStringW");
 				if (pLoadString != NULL)
 				{
-					bImportChanged = ImportPatch::ChangeImportedAddress(g_hShell32, "api-ms-win-core-libraryloader-l1-1-1.dll", pLoadString, (FARPROC)Proxy_LoadString);
+					if (ImportPatch::ChangeImportedAddress(g_hShell32, "api-ms-win-core-libraryloader-l1-1-1.dll", pLoadString, (FARPROC)Proxy_LoadString))
+						bImportChanged = TRUE;
 				}
 			}
 			FARPROC pExtTextOut = GetProcAddress(GetModuleHandle(_T("gdi32.dll")), "ExtTextOutW");
 			if (pExtTextOut != NULL)
 			{
-				bImportChanged = ImportPatch::ChangeImportedAddress(g_hShell32, "gdi32.dll", pExtTextOut, (FARPROC)Proxy_ExtTextOut);
+				if (ImportPatch::ChangeImportedAddress(g_hShell32, "gdi32.dll", pExtTextOut, (FARPROC)Proxy_ExtTextOut))
+					bImportChanged = TRUE;
 			}
 
 			if (bImportChanged)
@@ -166,7 +169,9 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 				{
 					typedef BOOL(WINAPI *BrandLoadStr_t)(LPTSTR, INT, LPTSTR, INT);
 					BrandLoadStr_t BrandLoadStr = (BrandLoadStr_t)GetProcAddress(h_Module, "BrandingLoadString");
-					int Result = BrandLoadStr(_T("Basebrd"), 12, lpchNames[0], iLpNamesSize[0]);
+					int Result = 0;
+					if (BrandLoadStr != NULL && lpchNames[0] != NULL)
+						Result = BrandLoadStr(_T("Basebrd"), 12, lpchNames[0], iLpNamesSize[0]);
 					if (Result == 0)
 						lpchNames[0] = lptBrand;
 					FreeLibrary(h_Module);
@@ -179,9 +184,11 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 					UINT uiID[] = { 33088, 33089, 33108, 33109, 33111, 33117 };
 					for (int i = 0; i < Length(uiID); i++)
 					{
-						int Result = LoadString(h_Module, uiID[i], lpchNames[i + 1], iLpNamesSize[i + 1]);
+						int Result = 0;
+						if (lpchNames[i + 1] != NULL)
+							Result = LoadString(h_Module, uiID[i], lpchNames[i + 1], iLpNamesSize[i + 1]);
 						if (Result == 0)
-							lpchNames[i] = lptPr;
+							lpchNames[i + 1] = lptPr;
 					}
 					//FreeLibrary(h_Module);
 				}

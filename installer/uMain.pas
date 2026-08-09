@@ -472,7 +472,11 @@ begin
       dwFlags := STARTF_USESHOWWINDOW;
       wShowWindow := SW_SHOWNORMAL;
     end;
-  CreateProcessW(PWideChar(sProcess), nil, nil, nil, False, 0, nil, nil, SUInfo, ProcInfo);
+  if CreateProcessW(PWideChar(sProcess), nil, nil, nil, False, 0, nil, nil, SUInfo, ProcInfo) then
+  begin
+    CloseHandle(ProcInfo.hThread);
+    CloseHandle(ProcInfo.hProcess);
+  end;
   Application.ProcessMessages;
 end;
 
