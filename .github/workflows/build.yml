@@ -108,7 +108,6 @@ jobs:
           MATRIX_ARCH: ${{ matrix.architecture }}
         run: >-
           cmake -S . -B build
-          -G "Visual Studio 17 2022"
           -A "$env:MATRIX_ARCH"
           -DCMAKE_BUILD_TYPE=Release
           -DBUILD_TESTING=ON
