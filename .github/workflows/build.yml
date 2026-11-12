@@ -21,7 +21,7 @@ concurrency:
 jobs:
   strict-c99:
     name: Strict ISO C99 (MinGW x64)
-    if: github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Merge pull request #')
+    if: "github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Merge pull request #')"
     runs-on: windows-2022
     timeout-minutes: 20
 
@@ -84,7 +84,7 @@ jobs:
 
   build:
     name: Windows ${{ matrix.architecture }}
-    if: github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Merge pull request #')
+    if: "github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Merge pull request #')"
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     strategy:
